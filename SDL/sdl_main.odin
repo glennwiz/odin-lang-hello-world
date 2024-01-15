@@ -85,9 +85,7 @@ main :: proc() {
 		else
 		{
 			counter += 1
-		}
-
-        fmt.println("FPS : ", 1000 / (end - start))
+		}        
     }
 }
 
