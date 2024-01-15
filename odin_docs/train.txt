@@ -1,216 +1,245 @@
-SDL sample app in odin :
-This example will create a basic window using SDL and handle input events like quit and key presses. Remember to have SDL2 and SDL2_image libraries installed on your system and properly linked.
+Odin SDL2 Tutorial
 
-file.odin
-```
-package main
+Introduction
+This tutorial will guide you through a basic Odin program using the SDL2 library to create a window and handle input events.
 
-import "core:fmt"
-import SDL "vendor:sdl2"
-import SDL_Image "vendor:sdl2/image"
+Environment Setup
+Before you begin, ensure you have Odin and the SDL2 libraries (SDL2 and SDL2_image) installed on your system.
 
-WINDOW_FLAGS :: SDL.WINDOW_SHOWN
-RENDER_FLAGS :: SDL.RENDERER_ACCELERATED
-TARGET_DT :: 1000 / 60
-
-Game :: struct {
-    perf_frequency: f64,
-    renderer: ^SDL.Renderer,
-}
-
-game := Game{}
-
-main :: proc() {
-    assert(SDL.Init(SDL.INIT_VIDEO) == 0, SDL.GetErrorString())
-    assert(SDL_Image.Init(SDL_Image.INIT_PNG) != nil, SDL.GetErrorString())
-    defer SDL.Quit()
-
-    window := SDL.CreateWindow(
-        "Odin Space Shooter",
-        SDL.WINDOWPOS_CENTERED,
-        SDL.WINDOWPOS_CENTERED,
-        640,
-        480,
-        WINDOW_FLAGS
-    )
-    assert(window != nil, SDL.GetErrorString())
-    defer SDL.DestroyWindow(window)
-
-    renderer := SDL.CreateRenderer(window, -1, RENDER_FLAGS)
-    assert(renderer != nil, SDL.GetErrorString())
-    defer SDL.DestroyRenderer(renderer)
-
-    game.perf_frequency = f64(SDL.GetPerformanceFrequency())
-    start: f64
-    end: f64
-
-    event: SDL.Event
-    state: [^]u8
-
-    game_loop: for {
-        start = get_time()
-
-        // Event handling
-        state = SDL.GetKeyboardState(nil)
-        if SDL.PollEvent(&event) {
-            if event.type == SDL.EventType.QUIT {
-                break game_loop
-            }
-            if event.type == SDL.EventType.KEYDOWN {
-                #partial switch event.key.keysym.scancode {
-                    case .ESCAPE:
-                        break game_loop
-                }
-            }
-        }
-
-        // TODO: Update game state and render
-
-        // Timing for frame rate
-        end = get_time()
-        for end - start < TARGET_DT {
-            end = get_time()
-        }
-
-        fmt.println("FPS: ", 1000 / (end - start))
-        SDL.RenderPresent(game.renderer)
-        SDL.SetRenderDrawColor(game.renderer, 0, 0, 0, 100)
-        SDL.RenderClear(game.renderer)
-    }
-}
-
-get_time :: proc() -> f64 {
-    return f64(SDL.GetPerformanceCounter()) * 1000 / game.perf_frequency
-}
-This code sets up a basic SDL window and enters into a game loop where it handles keyboard events. You can add more functionality to the TODO section for game state updates and rendering.
-
-Before running this, ensure you have the SDL2 and SDL2_image libraries set up in your project, as the import statements suggest they are being used from a vendor directory. Also, make sure to compile and run this in an environment where Odin is properly set up. If you encounter any issues or need further assistance, feel free to ask!
-```
--
-Code explanation:
-
-Let's break down the SDL sample application code in Odin:
-
+Code Breakdown
 Package Declaration
 odin
-```
-package main
-This line declares the package name for the file. In Odin, each file belongs to a package, and main is the default package for executables.
+code
+package gnipahellir
+Every Odin file starts with a package declaration. Here, the package is named gnipahellir.
 
-Import Statements
+Imports
 odin
-```
+code
 import "core:fmt"
 import SDL "vendor:sdl2"
 import SDL_Image "vendor:sdl2/image"
-```
-Here, we're importing necessary libraries. core:fmt is for formatting and printing, similar to C's printf. SDL and SDL_Image are for SDL functionalities, imported from the specified vendor paths.
+The import statement is used to include external libraries. Here, core:fmt is for formatting and printing, similar to C's printf. SDL and SDL_Image are for SDL functionalities.
 
 Constants
 odin
-```
+code
 WINDOW_FLAGS :: SDL.WINDOW_SHOWN
 RENDER_FLAGS :: SDL.RENDERER_ACCELERATED
 TARGET_DT :: 1000 / 60
-```
-These constants are set for later use in creating the SDL window and renderer. WINDOW_FLAGS is for window display, RENDER_FLAGS for renderer properties, and TARGET_DT is the desired frame duration for a 60 FPS target.
+These constants set the window display flags, renderer properties, and target frame duration (for 60 FPS).
 
 Game Struct
 odin
-```
-Game :: struct {
+code
+Game :: struct
+{
     perf_frequency: f64,
     renderer: ^SDL.Renderer,
 }
-```
-Defines a Game structure containing performance frequency and a pointer to an SDL renderer.
 
-Global Game Instance
-odin
-```
 game := Game{}
-```
-Creates an instance of the Game struct.
+The Game struct contains the performance frequency and a pointer to an SDL renderer. An instance of Game is created globally.
 
 Main Procedure
 odin
-```
-main :: proc() {
-    // Initialization and cleanup code...
+code
+main :: proc()
+{
+    // Initialization and game loop...
 }
-```
-The main procedure is the entry point of the program. It initializes SDL, creates a window and renderer, and contains the main game loop.
+The main procedure is the entry point of the program.
 
-SDL Initialization and Cleanup
+SDL Initialization
 odin
-```
+code
 assert(SDL.Init(SDL.INIT_VIDEO) == 0, SDL.GetErrorString())
 assert(SDL_Image.Init(SDL_Image.INIT_PNG) != nil, SDL.GetErrorString())
 defer SDL.Quit()
-```
-Initializes SDL and SDL_Image libraries and ensures they initialize correctly. defer SDL.Quit() schedules the SDL cleanup function to be called when the main procedure exits.
+Initializes SDL and SDL_Image, ensuring successful initialization.
 
 Window and Renderer Creation
 odin
-```
-window := SDL.CreateWindow( /* parameters */ )
+code
+window := SDL.CreateWindow("Odin Hello World!", SDL.WINDOWPOS_CENTERED, SDL.WINDOWPOS_CENTERED, 640, 480, WINDOW_FLAGS)
 assert(window != nil, SDL.GetErrorString())
 defer SDL.DestroyWindow(window)
 
-renderer := SDL.CreateRenderer(window, -1, RENDER_FLAGS)
-assert(renderer != nil, SDL.GetErrorString())
-defer SDL.DestroyRenderer(renderer)
-```
-Creates an SDL window and renderer, with error checks. The defer statements ensure these are properly destroyed when exiting.
+game.renderer = SDL.CreateRenderer(window, -1, RENDER_FLAGS)
+assert(game.renderer != nil, SDL.GetErrorString())
+defer SDL.DestroyRenderer(game.renderer)
+Creates an SDL window and renderer, checking for errors. The defer statements ensure proper destruction upon exit.
 
-Game Loop
+Performance Frequency
 odin
-```
-game_loop: for {
-    // Game loop code...
+code
+game.perf_frequency = f64(SDL.GetPerformanceFrequency())
+Stores the performance frequency for frame timing calculations.
+
+Main Game Loop
+odin
+code
+game_loop : for
+{
+    // Event handling and rendering...
 }
-This is the main game loop where events are polled, game state is updated, and rendering is done.
+The main game loop handles events, updates game state, and performs rendering.
 
 Event Handling
 odin
-```
+code
 state = SDL.GetKeyboardState(nil)
-if SDL.PollEvent(&event) { /* event handling */ }
-```
+if SDL.PollEvent(&event)
+{
+    // Quit and key handling...
+}
 Handles keyboard input and other SDL events.
 
 Frame Rate Management
 odin
-```
-end =
-get_time()
-for end - start < TARGET_DT {
+code
+start = get_time()
+// Game logic...
 end = get_time()
-}
-```
+    for end - start < TARGET_DT
+    {
+        end = get_time()
+    }
 
 
-This code manages the frame rate. It calculates the time taken for each iteration of the game loop and uses a spin lock (busy-waiting) to delay the loop until the target frame time is reached, aiming for a consistent 60 FPS.
 
-### Rendering and Clearing
-```
-fmt.println("FPS: ", 1000 / (end - start))
+Manages the frame rate by measuring the time taken for each iteration and using a spin lock to delay the loop until the target frame time is reached.
+
+##### Rendering and Clearing
+```odin
 SDL.RenderPresent(game.renderer)
-SDL.SetRenderDrawColor(game.renderer, 0, 0, 0, 100)
+SDL.SetRenderDrawColor(game.renderer, 0, 0, 0, 255)
 SDL.RenderClear(game.renderer)
-Here, the frame rate is printed to the console. SDL.RenderPresent updates the screen with rendering performed in the current frame. SDL.SetRenderDrawColor and SDL.RenderClear are used to clear the screen for the next frame.
+Updates the screen with the current frame, sets the render draw color, and clears the screen for the next frame.
 
 Time Calculation Function
 odin
-```
-get_time :: proc() -> f64 {
+code
+get_time :: proc() -> f64
+{
     return f64(SDL.GetPerformanceCounter()) * 1000 / game.perf_frequency
 }
-```
-This helper function calculates the current time in milliseconds using SDL's high-resolution counter, which is useful for frame timing.
+Calculates the current time in milliseconds using SDL's high-resolution counter, which is useful for frame timing.
 
-Summary part 1:
-
-The program initializes the SDL library, creates a window and renderer, and enters a game loop where it handles events and maintains a steady frame rate. The actual game logic and rendering would be added to the game loop. This template provides a structured way to start building an SDL-based application in Odin.
+Summary
+This program initializes SDL, creates a window and renderer, and enters a game loop where it handles events and maintains a steady frame rate. You can expand upon this structure to add actual game logic and rendering.
 
 
+--- full code ---
+
+
+package gnipahellir
+
+import "core:fmt"
+import SDL "vendor:sdl2"
+import SDL_Image "vendor:sdl2/image"
+
+WINDOW_FLAGS :: SDL.WINDOW_SHOWN
+RENDER_FLAGS :: SDL.RENDERER_ACCELERATED
+TARGET_DT :: 1000 / 60
+
+Game :: struct
+{
+	perf_frequency: f64,
+	renderer: ^SDL.Renderer,
+}
+
+game := Game{}
+
+main :: proc()
+{
+	assert(SDL.Init(SDL.INIT_VIDEO) == 0, SDL.GetErrorString())
+	assert(SDL_Image.Init(SDL_Image.INIT_PNG) != nil, SDL.GetErrorString())
+	defer SDL.Quit()
+
+	window := SDL.CreateWindow(
+		"Odin Hello World!",
+		SDL.WINDOWPOS_CENTERED,
+		SDL.WINDOWPOS_CENTERED,
+		640,
+		480,
+		WINDOW_FLAGS
+	)
+	assert(window != nil, SDL.GetErrorString())
+	defer SDL.DestroyWindow(window)
+
+	// Must not do VSync because we run the tick loop on the same thread as rendering.
+	game.renderer = SDL.CreateRenderer(window, -1, RENDER_FLAGS)
+	assert(game.renderer != nil, SDL.GetErrorString())
+	defer SDL.DestroyRenderer(game.renderer)
+
+	game.perf_frequency = f64(SDL.GetPerformanceFrequency())
+	start : f64
+	end : f64	
+	counter : u32 = 0
+
+	event : SDL.Event
+	state : [^]u8
+
+	game_loop : for
+	{
+		start = get_time()	
+		state = SDL.GetKeyboardState(nil)		
+
+		if SDL.PollEvent(&event)
+		{
+			if event.type == SDL.EventType.QUIT
+			{
+				break game_loop
+			}
+
+			if event.type == SDL.EventType.KEYDOWN
+			{
+				#partial switch event.key.keysym.scancode
+				{
+					case .ESCAPE:
+						break game_loop
+				}
+			}
+		}
+
+		// spin lock to hit our framerate
+		end = get_time()
+		for end - start < TARGET_DT
+		{
+			end = get_time()
+		}
+
+	
+		if counter == 60
+		{
+			fmt.println(state[SDL.SCANCODE_W])
+			fmt.println("Start : ", start)
+			fmt.println("End : ", end)
+			fmt.println("FPS : ", 1000 / (end - start))
+			counter = 0
+		}
+		else
+		{
+			counter += 1
+		}
+		
+		// actual flipping / presentation of the copy
+		// read comments here :: https://wiki.libsdl.org/SDL_RenderCopy
+		SDL.RenderPresent(game.renderer)
+
+		// make sure our background is black
+		// RenderClear colors the entire screen whatever color is set here
+		SDL.SetRenderDrawColor(game.renderer, 0, 0, 0, 255)
+
+
+		// clear the old scene from the renderer
+		// clear after presentation so we remain free to call RenderCopy() throughout our update code / wherever it makes the most sense
+		SDL.RenderClear(game.renderer)
+	}
+}
+
+get_time :: proc() -> f64
+{
+	return f64(SDL.GetPerformanceCounter()) * 1000 / game.perf_frequency
+}
