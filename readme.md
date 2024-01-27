@@ -2,7 +2,7 @@
 
 
 * https://odin-lang.org/
-* https://odin-lang.org/news/declaration-syntax/
+* [https://odin-lang.org/news/declaration-syntax/](https://odin-lang.org/news/declaration-syntax/#odin-syntax)
 * https://github.com/odin-lang/Odin
 * https://github.com/odin-lang/examples 
 * https://github.com/patrickodacre/odin-space-shooter
